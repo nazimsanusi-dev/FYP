@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collection Route Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .input-container {
+            margin: 10px;
+        }
+        .route-info {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Collection Route Map</h1>
+    <div class="input-container">
+        <label for="startPoint">Start Point (Latitude, Longitude):</label>
+        <input type="text" id="startPoint" placeholder="e.g., 6.425288, 100.273422" />
+        <button onclick="drawRoute()">Show Route</button>
+    </div>
+    <div id="map"></div>
+    <div class="route-info">
+        <h3>Route Information</h3>
+        <p id="distance">Distance: N/A</p>
+        <p id="time">Time: N/A</p>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([6.4451, 100.2041], 12); // Centered on Perlis
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Collection points data
+        const collectionPoints = [
+            { name: "Arau Town Center", lat: 6.425288, lng: 100.273422 },
+            { name: "Kangar", lat: 6.4451, lng: 100.2041 },
+            { name: "Padang Besar Border Complex", lat: 6.651664, lng: 100.292954 }
+        ];
+
+        // Add markers for collection points
+        collectionPoints.forEach(point => {
+            L.marker([point.lat, point.lng])
+                .bindPopup(`<b>${point.name}</b>`)
+                .addTo(map);
+        });
+
+        let control;
+
+        // Function to draw the route
+        function drawRoute() {
+            const startPointInput = document.getElementById("startPoint").value.split(",");
+            
+            if (startPointInput.length !== 2) {
+                alert("Please enter valid coordinates for the start point.");
+                return;
+            }
+
+            const startPoint = L.latLng(parseFloat(startPointInput[0]), parseFloat(startPointInput[1]));
+
+            // Define waypoints in the fixed order
+            const waypoints = [
+                startPoint, // Start Point
+                L.latLng(collectionPoints[0].lat, collectionPoints[0].lng), // Arau Town Center
+                L.latLng(collectionPoints[1].lat, collectionPoints[1].lng), // Kangar
+                L.latLng(collectionPoints[2].lat, collectionPoints[2].lng), // Padang Besar
+                startPoint // Return to Start Point
+            ];
+
+            // Remove existing route if any
+            if (control) {
+                map.removeControl(control);
+            }
+
+            // Add the route
+            control = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: false,
+                showAlternatives: false, // Disable alternatives
+                createMarker: (i, waypoint) => {
+                    if (i === 0) {
+                        return L.marker(waypoint.latLng).bindPopup("Start Point").openPopup();
+                    } else if (i === waypoints.length - 1) {
+                        return L.marker(waypoint.latLng).bindPopup("Return to Start Point").openPopup();
+                    } else {
+                        return L.marker(waypoint.latLng);
+                    }
+                }
+            }).on('routesfound', function (e) {
+                const route = e.routes[0]; // Select the first route
+                const distance = (route.summary.totalDistance / 1000).toFixed(2); // Distance in km
+                const time = (route.summary.totalTime / 60).toFixed(2); // Time in minutes
+
+                // Update the distance and time information
+                document.getElementById("distance").textContent = `Distance: ${distance} km`;
+                document.getElementById("time").textContent = `Time: ${time} minutes`;
+            }).addTo(map);
+
+            // Adjust the map to fit the route
+            map.fitBounds(L.latLngBounds(waypoints));
+        }
+    </script>
+</body>
+</html>

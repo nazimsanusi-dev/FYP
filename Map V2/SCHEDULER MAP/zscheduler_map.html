@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Top Navigation Bar Styles */
+        .top-nav {
+            background-color: #00693C;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1rem;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .top-nav .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        .top-nav .menu {
+            display: flex;
+            gap: 1rem;
+            padding-right: 9rem;
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .top-nav a:hover {
+            background-color: 	#EBAB00;
+        }
+        .top-nav .menu a.active {
+            background-color: 	#EBAB00;
+        }
+        .top-nav .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .top-nav .action-buttons button {
+            background-color: 	#EBAB00;
+            color: white;
+            border: none;
+            padding: 1rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .top-nav .action-buttons button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="logo">Waste Management</div>
+        <div class="menu">
+            <a href="../MAIN PAGE/MainPage.html" >MAIN</a>
+            <a href="../SCHEDULER MAP/zscheduler_map.html"  class="active">WASTE MAP</a>
+            <a href="../LIST REPORT/zlist_report.html">REPORT DETAILS</a>
+            
+        </div>
+        <div class="action-buttons">
+            
+            <button onclick="window.location.href='../LOGIN/login.html';" >LOG OUT</button>
+        </div>
+    </div>
+
+    <h1>Scheduled Routes</h1>
+
+    <!-- Map Section -->
+    <div id="map"></div>
+
+    <!-- Schedule Section -->
+    <div id="schedule">
+        <div class="buttons">
+            <button id="clearRoute" class="btn">....</button> <!-- Button to clear route that able change ALL Status : Pending => Sucesss -->
+
+            <button id="showRoute" class="btn">Show Route</button>
+            
+            <select id="filterReports" class="btn">
+                <option value="All">Choose Area</option>
+                <option value="Arau">Arau</option>
+                <option value="Kangar">Kangar</option>
+                <option value="Padang Besar">Padang Besar</option>
+            </select>
+        </div>
+
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Issue</th>
+                    <th>Location</th>
+                    <th>District</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="reportList"></tbody>
+        </table>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script type="module" src="zmap.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Restriction Example</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <style>
+        #map { height: 600px; margin-top: 10px; }
+        .form-container { margin: 10px; }
+        input { margin: 5px; padding: 5px; }
+        button { padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <label>Point A: </label>
+        <input type="text" id="pointA" value="6.475695598534659,100.26434329579946" />
+        <label>Point B: </label>
+        <input type="text" id="pointB" value="6.427429299481074,100.27214746549078" />
+        <button onclick="calculateRoute()">Calculate Route</button>
+    </div>
+    <div id="map"></div>
+    <script>
+        const map = L.map('map').setView([6.4456, 100.2048], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        let kangarBoundary, padangBesarBoundary, arauBoundary;
+
+        // Load boundaries for Kangar, Arau, and Padang Besar
+        fetch('kangar.geojson')
+            .then(res => res.json())
+            .then(data => {
+                kangarBoundary = data.features[0].geometry;
+                L.geoJSON(data, { style: { color: 'red', weight: 2 } }).addTo(map);
+            });
+
+        fetch('arau.geojson')
+            .then(res => res.json())
+            .then(data => {
+                arauBoundary = data.features[0].geometry;
+                L.geoJSON(data, { style: { color: 'blue', weight: 2 } }).addTo(map);
+            });
+
+        fetch('pb.geojson')
+            .then(res => res.json())
+            .then(data => {
+                padangBesarBoundary = data.features[0].geometry;
+                L.geoJSON(data, { style: { color: 'green', weight: 2 } }).addTo(map);
+            });
+
+        function determineArea(lat, lng) {
+            const point = turf.point([lng, lat]);
+
+            if (turf.booleanPointInPolygon(point, arauBoundary)) {
+                return 'Arau';
+            } else if (turf.booleanPointInPolygon(point, kangarBoundary)) {
+                return 'Kangar';
+            } else if (turf.booleanPointInPolygon(point, padangBesarBoundary)) {
+                return 'Padang Besar';
+            } else {
+                return 'Unknown Area';
+            }
+        }
+
+        const router = L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            createMarker: function(i, waypoint, n) {
+                return L.marker(waypoint.latLng, { draggable: true });
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1',
+            }),
+        }).addTo(map);
+
+        function calculateRoute() {
+            const pointA = document.getElementById('pointA').value.split(',').map(Number);
+            const pointB = document.getElementById('pointB').value.split(',').map(Number);
+
+            const area = determineArea(pointB[0], pointB[1]);
+            alert(`Point B is in Area: ${area}`);
+
+            if (area === 'Unknown Area') {
+                alert('Point B is outside known areas.');
+                return;
+            }
+
+            router.setWaypoints([
+                L.latLng(pointA[0], pointA[1]),
+                L.latLng(pointB[0], pointB[1]),
+            ]);
+        }
+    </script>
+</body>
+</html>

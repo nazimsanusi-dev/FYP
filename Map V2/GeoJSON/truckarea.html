@@ -1,0 +1,191 @@
+<!-- <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perlis Area Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Perlis Area Map</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([6.475313639980661, 100.26444062636516], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Load the Perlis GeoJSON
+        fetch('perlis_wilayah.geojson') // Ensure the GeoJSON file is in the same directory
+            .then(response => response.json())
+            .then(geojsonData => {
+                // Add GeoJSON layer to the map
+                L.geoJSON(geojsonData, {
+                    style: (feature) => {
+                        // Assign distinct colors for each area
+                        const colors = {
+                            "PADANG BESAR": "blue",
+                            "KANGAR": "green",
+                            "ARAU": "red"
+                        };
+                        const areaName = feature.properties.name;
+
+                        return {
+                            color: colors[areaName] || "gray", // Default to gray if name is missing
+                            weight: 2,
+                            fillOpacity: 0.5
+                        };
+                    },
+                    onEachFeature: (feature, layer) => {
+                        // Bind a popup for each area
+                        const areaName = feature.properties.name || "Unknown Area";
+                        layer.bindPopup(`<strong>${areaName}</strong>`);
+                    }
+                }).addTo(map);
+            })
+            .catch(error => console.error("Error loading GeoJSON:", error));
+    </script>
+</body>
+</html> 
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perlis Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; }
+        .button-group { margin: 10px; }
+        button { margin: 5px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="button-group">
+        <button onclick="toggleLayer('arau')">Arau</button>
+        <button onclick="toggleLayer('kangar')">Kangar</button>
+        <button onclick="toggleLayer('pb')">Padang Besar</button>
+    </div>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([6.4456, 100.2048], 10.5);
+
+        // Add a base map layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 14,
+        }).addTo(map);
+
+        // Load GeoJSON layers
+        const layers = {
+            arau: L.geoJSON(null, { style: { color: 'blue', weight: 2 } }).addTo(map),
+            kangar: L.geoJSON(null, { style: { color: 'green', weight: 2 } }).addTo(map),
+            pb: L.geoJSON(null, { style: { color: 'red', weight: 2 } }).addTo(map),
+        };
+
+        // Fetch GeoJSON files and add to layers
+        fetch('arau.geojson').then(res => res.json()).then(data => layers.arau.addData(data));
+        fetch('kangar.geojson').then(res => res.json()).then(data => layers.kangar.addData(data));
+        fetch('pb.geojson').then(res => res.json()).then(data => layers.pb.addData(data));
+
+        // Toggle layers
+        function toggleLayer(area) {
+            if (map.hasLayer(layers[area])) {
+                map.removeLayer(layers[area]);
+            } else {
+                map.addLayer(layers[area]);
+            }
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Restriction Example</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <style>
+        #map { height: 600px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([6.4456, 100.2048], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Load Arau boundary
+        let arauBoundary;
+        fetch('arau.geojson')
+            .then(res => res.json())
+            .then(data => {
+                arauBoundary = data;
+                L.geoJSON(data, { style: { color: 'blue', weight: 2 } }).addTo(map);
+            });
+
+        // Function to check if a point is inside Arau
+        function isInsideArau(lat, lng) {
+            if (!arauBoundary) return false;
+            const point = turf.point([lng, lat]);
+            const polygon = turf.featureCollection(arauBoundary.features);
+            return turf.booleanPointInPolygon(point, polygon);
+        }
+
+        // Add a marker and validate location
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+
+            if (isInsideArau(lat, lng)) {
+                L.marker([lat, lng]).addTo(map).bindPopup("Location is within Arau").openPopup();
+            } else {
+                alert("Cannot go there: Location is outside Arau");
+            }
+        });
+
+        // Add routing
+        const router = L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            createMarker: function(i, waypoint, n) {
+                return L.marker(waypoint.latLng, { draggable: true });
+            },
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1',
+            }),
+        }).addTo(map);
+
+        // Restrict routes to Arau
+        router.on('routesfound', function(e) {
+            const route = e.routes[0];
+            const isValidRoute = route.coordinates.every(coord => isInsideArau(coord.lat, coord.lng));
+
+            if (!isValidRoute) {
+                alert("Route cannot leave Arau boundary");
+                router.setWaypoints([]);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Waste Management Map</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; width: 100%; }
+        body { margin: 0; padding: 0; }
+        .button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+        .button-container button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="button-container">
+        <button id="perlis-button">Perlis</button>
+        <button id="mukim-button">Mukim</button>
+        <button id="wilayah-button">Wilayah</button>
+    </div>
+
+    <!-- Leaflet.js Library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+
+    <script>
+        // Initialize the Map
+        var map = L.map('map').setView([6.5, 100.2], 11);
+
+        // Add Base Tile Layer
+        var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // // Add Marker for Hub (Tapak Pelupusan Sanitari)
+        // var hubMarker = L.marker([6.5998433900191555, 100.27208843968351], {
+        //     icon: L.icon({
+        //         iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+        //         iconSize: [32, 32],
+        //         iconAnchor: [16, 32]
+        //     })
+        // }).addTo(map);
+        // hubMarker.bindPopup("<strong>Tapak Pelupusan Sanitari</strong><br>Rimba Mas, Perlis");
+
+        // Add Marker for Hub (Tapak Pelupusan Sanitari)
+        var hubMarker = L.marker([6.486974155007268, 100.27291464821445], {
+            icon: L.icon({
+                iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32]
+            })
+        }).addTo(map);
+        hubMarker.bindPopup("<strong>Tapak Pelupusan Sanitari</strong><br>Rimba Mas, Perlis");
+
+
+        // Waste Collection Points Data
+        var collectionPoints = [
+            { name: "Arau Town Center", type: "Plastic", volume: 8, lat: 6.425288, lng: 100.273422 },
+            { name: "Padang Besar Border Complex", type: "Mixed", volume: 12, lat: 6.651664, lng: 100.292954 },
+            { name: "Taman Sena", type: "Paper", volume: 5, lat: 6.443027, lng: 100.200806 }
+        ];
+
+        // Add Markers for Waste Collection Points
+        collectionPoints.forEach(point => {
+            var marker = L.marker([point.lat, point.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                })
+            }).addTo(map);
+
+            marker.bindPopup(
+                `<strong>${point.name}</strong><br>Type: ${point.type}<br>Volume: ${point.volume} tons`
+            );
+        });
+
+        // GeoJSON Layers
+        var communesLayer = new L.GeoJSON.AJAX("perlis_communes.geojson", {
+            style: function (feature) {
+                return { color: "#FF0000", weight: 2, fillOpacity: 0.1 };
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`<strong>${feature.properties.NAME}</strong>`);
+            }
+        });
+
+        var wilayahLayer = new L.GeoJSON.AJAX("perlis_wilayah.geojson", {
+            style: function (feature) {
+                return { color: "#0000FF", weight: 2, fillOpacity: 0.1 };
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`<strong>${feature.properties.NAME}</strong>`);
+            }
+        });
+
+        // Button Event Listeners
+        document.getElementById('perlis-button').addEventListener('click', function () {
+            // Remove all GeoJSON layers
+            map.eachLayer(function (layer) {
+                if (layer !== baseLayer) map.removeLayer(layer);
+            });
+            hubMarker.addTo(map); // Re-add the hub marker
+            collectionPoints.forEach(point => {
+                var marker = L.marker([point.lat, point.lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32]
+                    })
+                }).addTo(map);
+                marker.bindPopup(
+                    `<strong>${point.name}</strong><br>Type: ${point.type}<br>Volume: ${point.volume} tons`
+                );
+            });
+        });
+
+        document.getElementById('mukim-button').addEventListener('click', function () {
+            // Add the Mukim layer
+            map.eachLayer(function (layer) {
+                if (layer !== baseLayer) map.removeLayer(layer);
+            });
+            hubMarker.addTo(map);
+            collectionPoints.forEach(point => {
+                var marker = L.marker([point.lat, point.lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32]
+                    })
+                }).addTo(map);
+                marker.bindPopup(
+                    `<strong>${point.name}</strong><br>Type: ${point.type}<br>Volume: ${point.volume} tons`
+                );
+            });
+            communesLayer.addTo(map);
+        });
+
+        document.getElementById('wilayah-button').addEventListener('click', function () {
+            // Add the Wilayah layer
+            map.eachLayer(function (layer) {
+                if (layer !== baseLayer) map.removeLayer(layer);
+            });
+            hubMarker.addTo(map);
+            collectionPoints.forEach(point => {
+                var marker = L.marker([point.lat, point.lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32]
+                    })
+                }).addTo(map);
+                marker.bindPopup(
+                    `<strong>${point.name}</strong><br>Type: ${point.type}<br>Volume: ${point.volume} tons`
+                );
+            });
+            wilayahLayer.addTo(map);
+        });
+    </script>
+</body>
+</html>

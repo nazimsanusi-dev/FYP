@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Schedule</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .top-nav {
+            background-color: 	#00693C;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1rem;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .top-nav .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ecf0f1;
+            padding-left: 1rem;
+        }
+        .top-nav .menu {
+            display: flex;
+            gap: 1rem;
+            padding-right: 7rem;
+        }
+        .top-nav .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .top-nav .menu a.active {
+            background-color: 	#EBAB00;
+            color: #ffffff;
+        }
+        .top-nav .menu a:hover {
+            background-color: 	#fbb801;
+        }
+        .top-nav .action-buttons {
+            display: flex;
+            gap: 0.5remx;
+            padding-right: 2%;
+        }
+        .top-nav .action-buttons button {
+            background-color: 	#ffbb00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .top-nav .action-buttons button:hover {
+            background-color: #c0392b;
+        }
+        .container {
+            margin-top: 80px; /* Ensure the content does not overlap with the navbar */
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="logo">Waste Management </div>
+        <div class="menu">
+            <a href="../MAIN PAGE/MainPage.html" >MAIN</a>
+            <a href="../SCHEDULER MAP/zscheduler_map.html">WASTE MAP</a>
+            <a href="../LIST REPORT/zlist_report.html" class="active">REPORT DETAILS</a>
+            
+        </div>
+        <div class="action-buttons">
+            
+            <button onclick="window.location.href='../LOGIN/login.html';" onclick="alert('Logout successful!')">LOG OUT</button>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <h1>Report Schedule</h1>
+        <div class="filters">
+            <div class="filter">
+                <label for="districtFilter">District:</label>
+                <select id="districtFilter">
+                    <option value="">All</option>
+                    <option value="Arau">Arau</option>
+                    <option value="Kangar">Kangar</option>
+                    <option value="Padang Besar">Padang Besar</option>
+                </select>
+            </div>
+            <div class="filter">
+                <label for="wasteTypeFilter">Waste Type:</label>
+                <select id="wasteTypeFilter">
+                    <option value="">All</option>
+                    <option value="Mix Waste">Mix Waste</option>
+                    <option value="Organic Waste">Organic Waste</option>
+                    <option value="Plastic Waste">Plastic Waste</option>
+                    <option value="Paper Waste">Paper Waste</option>
+                    <option value="Bulky Waste">Bulky Waste</option>
+                    <option value="Garden Waste">Garden Waste</option>
+                    <option value="Textile Waste">Textile Waste</option>
+                    <option value="Glass Waste">Glass Waste</option>
+                </select>
+            </div>
+            <div class="filter">
+                <label for="locationFilter">Location:</label>
+                <select id="locationFilter">
+                    <option value="">All</option>
+                    <option value="Arau Town Center">Arau Town Center</option>
+                    <option value="Kampung Guar Sanji">Kampung Guar Sanji</option>
+                    <option value="Pekan Pauh">Pekan Pauh</option>
+                    <option value="UniMAP Kampus Pauh">UniMAP Kampus Pauh</option>
+                    <option value="Taman Sena Indah">Taman Sena Indah</option>
+                    <option value="Pasar Borong Kangar">Pasar Borong Kangar</option>
+                    <option value="Taman Sri Bakong">Taman Sri Bakong</option>
+                    <option value="Padang Besar Border Complex">Padang Besar Border Complex</option>
+                    <option value="Kampung Titi Tinggi">Kampung Titi Tinggi</option>
+                    <option value="Felda Rimba Emas">Felda Rimba Emas</option>
+                </select>
+            </div>
+            <div class="filter">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Success">Success</option>
+                </select>
+            </div>
+            <div class="filter">
+                <label for="issueFilter">Issue:</label>
+                <select id="issueFilter">
+                    <option value="">All</option>
+                    <option value="Missed Collection">Missed Collection</option>
+                    <option value="Odor Problems">Odor Problems</option>
+                    <option value="Illegal Dumping">Illegal Dumping</option>
+                    <option value="Delayed Collection">Delayed Collection</option>
+                    <option value="Pest Infestation">Pest Infestation</option>
+                    <option value="Spilled Waste">Spilled Waste</option>
+                    <option value="Bin Overflow">Bin Overflow</option>
+                    <option value="Recycling Bin Contamination">Recycling Bin Contamination</option>
+                    <option value="Incomplete Collection">Incomplete Collection</option>
+                    <option value="Broken/Damaged Bin">Broken/Damaged Bin</option>
+                    <option value="Lost/Stolen Bin">Lost/Stolen Bin</option>
+                    <option value="Inadequate Recycling Options">Inadequate Recycling Options</option>
+                    <option value="No Issue">No Issue</option>
+                </select>
+            </div>
+            <div class="filter">
+                <label for="issueFilter">Time:</label>
+            <select id="timeFilter">
+                <option value="All">All</option>
+                <option value="Today">Today</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Monthly">Monthly</option>
+            </select>
+            </div>
+    
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Report</th>
+                    <th>ID User</th>
+                    <th>Issue</th>
+                    <th>Location</th>
+                    <th>District</th>
+                    <th>Waste Type</th>
+                    <th>Report Date</th>
+                    <th>Status</th>
+                    <th>Collection Time</th>
+                    <th>Weight</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="reportList"></tbody>
+        </table>
+    </div>
+
+    <div id="detailsModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script type="module" src="zreport_list.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees Table</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Employees Table</h1>
+
+    <!-- Employee Form -->
+    <form id="employee-form">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="number" id="id" placeholder="ID" required>
+        <input type="tel" id="phone" placeholder="Phone" required>
+        <select id="working-status" required>
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
+        <input type="text" id="department" placeholder="Department" required>
+        <input type="text" id="address" placeholder="Address" required>
+        <button type="submit">Add Employee</button>
+    </form>
+
+    <!-- Employees Table -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Phone</th>
+                <th>Working Status</th>
+                <th>Department</th>
+                <th>Address</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="employee-table"></tbody>
+    </table>
+
+    <!-- Firebase CRUD Logic -->
+    <script type="module" src="crud.js"></script>
+</body>
+</html>

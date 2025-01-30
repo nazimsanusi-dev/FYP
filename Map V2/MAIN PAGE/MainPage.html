@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Dashboard</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            background: linear-gradient(135deg, #007BFF, #4CAF50, #FF5722);
+            background-size: 400% 400%;
+            animation: gradientAnimation 7s ease infinite;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        iframe {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            height: 65%;
+            margin: 20px 0;
+            background-color: #ffffff;
+        }
+        .navigation {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .navigation button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            color: white;
+            background-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .navigation button:hover {
+            background-color: 	#EBAB00;
+            transform: scale(1.05);
+        }
+        .description {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome Admin ! ( Live )</h1>
+    </header>
+    <iframe title="Final Year Project (FYP) Dashboard" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNjVkNWMyYWItNTc2ZS00NDQ0LTg3ODktZTYxNDI0NDM0Y2RjIiwidCI6IjcyMjJhOWQyLTcxYWUtNDhhMy05OTJmLWY1MTVkZDE3NDM5ZiIsImMiOjEwfQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+    <!-- <iframe title="Final Year Project (FYP) Dashboard" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNjVkNWMyYWItNTc2ZS00NDQ0LTg3ODktZTYxNDI0NDM0Y2RjIiwidCI6IjcyMjJhOWQyLTcxYWUtNDhhMy05OTJmLWY1MTVkZDE3NDM5ZiIsImMiOjEwfQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>
+    <iframe title="FirstDashboard" src="https://app.powerbi.com/view?r=eyJrIjoiODBiYTA3MzItYjZjNi00YWE2LWI0NTQtOGQ4Yjc2MDhjYzA5IiwidCI6IjcyMjJhOWQyLTcxYWUtNDhhMy05OTJmLWY1MTVkZDE3NDM5ZiIsImMiOjEwfQ%3D%3D" allowFullScreen="true"></iframe> -->
+    <div class="navigation">
+        <button onclick="window.location.href='../SCHEDULER MAP/zscheduler_map.html';">WASTE MAP</button>
+        <button onclick="window.location.href='../LIST REPORT/zlist_report.html';">REPORT DETAILS</button>
+        <button onclick="window.location.href='../LOGIN/login.html';">LOG OUT</button>
+        <button onclick="window.location.href='../MAIN PAGE/MainPage_adjust.html';">DATA SYNTHETIC VER.</button>
+    </div>
+    <div class="description">
+        For further assistance, contact 013-1234567.
+    </div>
+</body>
+</html>
+

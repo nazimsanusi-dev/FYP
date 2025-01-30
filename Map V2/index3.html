@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management Route Optimization</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 70vh; width: 100%; margin-bottom: 10px; }
+        #controls { margin: 10px; }
+        .location-options { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="truck-select">Number of Trucks:</label>
+        <select id="truck-select">
+            <option value="1">1 Truck</option>
+            <option value="2">2 Trucks</option>
+            <option value="3">3 Trucks</option>
+        </select>
+        <button id="perlis-btn">Perlis</button>
+        <button id="mukim-btn">Mukim</button>
+        <button id="wilayah-btn">Wilayah</button>
+        <button id="calculate-route">Calculate Route</button>
+        <button id="clear-route">Clear Route</button>
+        <p>Total Distance: <span id="total-distance">0</span> km</p>
+    </div>
+    <div class="location-options">
+        <h3>Select Locations for Pickup</h3>
+        <div id="location-list"></div>
+    </div>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/turf/turf.min.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([6.5998433900191555, 100.27208843968351], 10);
+
+        // Base tile layers
+        var defaultLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var mukimLayer = L.geoJSON(null);
+        var wilayahLayer = L.geoJSON(null);
+
+        // Load GeoJSON for Mukim and Wilayah layers
+        fetch('perlis_communes.geojson')
+            .then(response => response.json())
+            .then(data => mukimLayer.addData(data));
+        fetch('perlis_wilayah.geojson')
+            .then(response => response.json())
+            .then(data => wilayahLayer.addData(data));
+
+        // Layer toggle buttons
+        document.getElementById('perlis-btn').addEventListener('click', function () {
+            switchLayer(defaultLayer);
+        });
+        document.getElementById('mukim-btn').addEventListener('click', function () {
+            switchLayer(mukimLayer);
+        });
+        document.getElementById('wilayah-btn').addEventListener('click', function () {
+            switchLayer(wilayahLayer);
+        });
+
+        function switchLayer(layer) {
+            map.eachLayer(function (layer) {
+                if (layer !== defaultLayer && layer !== mukimLayer && layer !== wilayahLayer) {
+                    map.removeLayer(layer);
+                }
+            });
+            layer.addTo(map);
+            restoreMarkersAndRoutes();
+        }
+
+        // Hub marker
+        var hubMarker = L.marker([6.5998433900191555, 100.27208843968351], {
+            icon: L.icon({
+                iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32]
+            })
+        }).addTo(map).bindPopup("Hub: Tapak Pelupusan Sanitari, Rimba Mas, Perlis");
+
+        // Waste Collection Points Data
+        var collectionPoints = [
+            { name: "Arau Town Center", type: "Plastic", volume: 8, lat: 6.425288, lng: 100.273422 },
+            { name: "Padang Besar Border Complex", type: "Mixed", volume: 12, lat: 6.651664, lng: 100.292954 },
+            { name: "Taman Sena", type: "Paper", volume: 5, lat: 6.443027, lng: 100.200806 }
+        ];
+
+        var markers = [];
+        var routes = [];
+
+        // Add markers for collection points and populate pickup list
+        var locationList = document.getElementById('location-list');
+        collectionPoints.forEach((point, index) => {
+            var marker = L.marker([point.lat, point.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                })
+            }).addTo(map);
+
+            marker.bindPopup(`<strong>${point.name}</strong><br>Type: ${point.type}<br>Volume: ${point.volume} tons`);
+            markers.push(marker);
+
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `pickup-${index}`;
+            checkbox.checked = true;
+
+            var label = document.createElement('label');
+            label.htmlFor = `pickup-${index}`;
+            label.innerText = point.name;
+
+            var container = document.createElement('div');
+            container.appendChild(checkbox);
+            container.appendChild(label);
+
+            locationList.appendChild(container);
+        });
+
+        // Restore markers and routes after layer switch
+        function restoreMarkersAndRoutes() {
+            markers.forEach(marker => marker.addTo(map));
+            routes.forEach(route => route.addTo(map));
+            hubMarker.addTo(map);
+        }
+
+        // Route calculation
+        document.getElementById('calculate-route').addEventListener('click', function () {
+            // Clear previous routes
+            routes.forEach(route => map.removeLayer(route));
+            routes = [];
+
+            var truckCount = parseInt(document.getElementById('truck-select').value);
+            var selectedPoints = collectionPoints.filter((_, index) =>
+                document.getElementById(`pickup-${index}`).checked
+            );
+
+            var optimizedRoutes = optimizeRoutes(hubMarker.getLatLng(), selectedPoints, truckCount);
+            var totalDistance = 0;
+
+            optimizedRoutes.forEach(route => {
+                var polyline = L.polyline(route.coordinates, { color: 'blue' }).addTo(map);
+                routes.push(polyline);
+                totalDistance += route.distance;
+            });
+
+            document.getElementById('total-distance').innerText = totalDistance.toFixed(2);
+        });
+
+        // Clear route
+        document.getElementById('clear-route').addEventListener('click', function () {
+            routes.forEach(route => map.removeLayer(route));
+            routes = [];
+            document.getElementById('total-distance').innerText = '0';
+        });
+
+        function optimizeRoutes(hub, points, truckCount) {
+    var coordinates = [[hub.lat, hub.lng]];
+    var distance = 0;
+
+    points.forEach(point => {
+        coordinates.push([point.lat, point.lng]);
+        distance += turf.distance([hub.lng, hub.lat], [point.lng, point.lat], { units: 'kilometers' }); // Use 'kilometers'
+    });
+    coordinates.push([hub.lat, hub.lng]); // Return to hub
+
+    return [{ coordinates, distance }];
+}
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perlis Toggle Tile Map</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; width: 100%; }
+        body { margin: 0; padding: 0; text-align: center; }
+        .button-container { margin: 10px; }
+        button { margin: 5px; padding: 10px; font-size: 14px; cursor: pointer; }
+        button.active { background-color: lightblue; }
+    </style>
+</head>
+<body>
+    <!-- Buttons to Switch Layers -->
+    <div class="button-container">
+        <button id="mukimButton" class="active">Mukim</button>
+        <button id="kawasanButton">Kawasan</button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Leaflet.js Library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+
+    <script>
+        // Initialize the Map Centered on Perlis
+        var map = L.map('map').setView([6.5, 100.2], 10);
+
+        // Add Base Tile Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Variables for GeoJSON Layer
+        var geojsonLayer;
+
+        // GeoJSON Styling Function
+        function style(feature) {
+            return {
+                fillColor: 'yellow',
+                weight: 1,
+                color: 'blue',
+                fillOpacity: 0.6
+            };
+        }
+
+        // Highlight Feature on Hover
+        function highlightFeature(e) {
+            var layer = e.target;
+            layer.setStyle({
+                fillColor: 'orange',
+                color: 'red',
+                weight: 3,
+                fillOpacity: 0.9
+            });
+        }
+
+        // Reset Feature Highlight
+        function resetHighlight(e) {
+            geojsonLayer.resetStyle(e.target);
+        }
+
+        // On Each Feature Behavior
+        function onEachFeature(feature, layer) {
+            if (feature.properties && feature.properties.name) {
+                layer.bindPopup("Region: " + feature.properties.name);
+            }
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight
+            });
+        }
+
+        // Function to Load GeoJSON Layer Dynamically
+        function loadLayer(geojsonFile) {
+            // Remove existing layer if it exists
+            if (geojsonLayer) {
+                map.removeLayer(geojsonLayer);
+            }
+
+            // Load new GeoJSON Layer
+            geojsonLayer = new L.GeoJSON.AJAX(geojsonFile, {
+                style: style,
+                onEachFeature: onEachFeature
+            });
+
+            geojsonLayer.on('data:loaded', function() {
+                map.fitBounds(geojsonLayer.getBounds());
+            });
+
+            geojsonLayer.addTo(map);
+        }
+
+        // Function to Handle Button Toggle
+        function toggleLayer(buttonId) {
+            // Update button states
+            document.getElementById("mukimButton").classList.remove("active");
+            document.getElementById("kawasanButton").classList.remove("active");
+            document.getElementById(buttonId).classList.add("active");
+
+            // Load corresponding layer
+            if (buttonId === "mukimButton") {
+                loadLayer('perlis_communes.geojson'); // Mukim
+            } else if (buttonId === "kawasanButton") {
+                loadLayer('perlis_wilayah.geojson'); // Kawasan
+            }
+        }
+
+        // Attach Event Listeners to Buttons
+        document.getElementById("mukimButton").addEventListener("click", function() {
+            toggleLayer("mukimButton");
+        });
+        document.getElementById("kawasanButton").addEventListener("click", function() {
+            toggleLayer("kawasanButton");
+        });
+
+        // Load Default Layer (Mukim)
+        loadLayer('perlis_communes.geojson');
+    </script>
+</body>
+</html>
